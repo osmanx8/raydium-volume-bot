@@ -1,100 +1,90 @@
+<h1 align="center">
+  🔁 Solana Volume BOT
+</h1>
+<p align="center">
+  <b>A stealth volume simulator for the Raydium DEX powered by the Solana blockchain</b><br>
+  <i>Distribute, swap, and simulate real-time activity across hundreds of wallets — fully automated.</i>
+</p>
 
-# 🤖 Raydium Volume Bot Version Latest
-
-This bot is designed to automate the distribution of SOL to multiple wallets and execute endless buy and sell swap transactions simultaneously on the Raydium platform. It leverages Solana's blockchain technology to perform these operations efficiently.
-
----
-
-## 🚀 Last Version's Demerits
-- **Repetitive buy and sell with one wallet**: The last version of the Raydium Volume Bot used fixed wallets, so it was apparent on DexScreener that some wallets performed repetitive buy and sell actions.
-- **No increase in the number of makers**: It didn't increase the number of pool makers, only the volume.
-- **Gathering token instead of SOL**: When gathering, if there were tokens left, it didn't sell them before gathering. Instead, it just gathered tokens to the main wallet.
-- **Equal number of buys and sells**: One-time buy and one-time sell actions left sell pressure at the end, as there was always a sell at the end of the volume operation.
-
----
-
-## 🧠 Improvements
-- **Transferring SOL to new wallet**: After buying and selling in one wallet, it transfers SOL to a newly created wallet and continues buying and selling there.
-- **Maker increase**: New wallets are created every round of buying and selling, increasing the number of makers.
-- **Sell before gather**: When gathering, if there are tokens left in the wallet, it sells the tokens first and gathers only SOL (the token account rent of 0.00203 SOL is reclaimed).
-- **More buys than sells**: It randomly buys twice with SOL in the wallet and sells all tokens after some time, making the number of buys twice as many as sells, thus creating more buy pressure.
+<p align="center">
+  <img src="https://img.shields.io/badge/Solana-Compatible-00ffcc?style=for-the-badge&logo=solana&logoColor=000000" />
+  <img src="https://img.shields.io/badge/Jupiter-V6-blueviolet?style=for-the-badge&logo=swap" />
+  <img src="https://img.shields.io/badge/Volume%20Bot-v2.0-orange?style=for-the-badge" />
+</p>
 
 ---
 
-## ⚙️ Features
-- **Automated SOL Distribution**: Distributes SOL to new wallets.
-- **Endless Buy and Sell Swaps**: Performs simultaneous buy and sell transactions.
-- **Swap with Jupiter V6**: Swap is performed with Jupiter V6 swap aggregator.
-- **Configurable Parameters**: Allows customization of buy amounts, intervals, distribution settings, and more.
+## ⚠️ Previous Version Drawbacks
+
+- 🔁 **Repetitive Wallet Use**  
+  Recycled wallets made bot activity obvious on DEX trackers like DexScreener.
+
+- 🧍‍♂️ **No Maker Footprint Growth**  
+  Simulated volume didn’t reflect a rise in pool participants.
+
+- 💰 **Token Stashing Without Sell-off**  
+  Tokens weren’t liquidated before collection, resulting in locked liquidity.
+
+- ⚖️ **Buy-Sell Symmetry = Sell Pressure**  
+  Equal buying/selling led to lingering sell pressure.
 
 ---
 
-## 📊 Environment Variables
+## 🚀 What's New
 
-The bot uses the following environment variables. Rename the `.env.copy` file to `.env` and set the necessary variables.
+- 🔄 **Fresh Wallet Generation**  
+  After each volume cycle, SOL is sent to a brand-new wallet.
+
+- 📈 **Increased Maker Count**  
+  Each transaction is done from a different wallet, boosting perceived activity.
+
+- 💸 **Auto Token Sell Before Fund Gathering**  
+  Leftover tokens are sold for SOL, and the rent is reclaimed.
+
+- 🟢 **Asymmetric Volume (More Buys)**  
+  Two randomized buys followed by a delayed sell simulate bullish demand.
+
+---
+
+## ⚙️ Features Overview
+
+- ✅ Multi-wallet SOL Distribution  
+- ✅ Configurable Buy/Sell Frequency and Timing  
+- ✅ Integrated with **Jupiter V6** Aggregator for optimal swap routing  
+- ✅ Real-time parallelized execution (up to 20 wallets at once)  
+- ✅ Clean gather command to sweep funds post-operation
+
+---
+
+## 📁 Environment Variables
+
+Rename `.env.copy` to `.env` and fill out the following:
 
 ```env
-PRIVATE_KEY=                 # Private key for the main wallet
-RPC_ENDPOINT=                # RPC endpoint for Solana
-RPC_WEBSOCKET_ENDPOINT=      # RPC WebSocket endpoint for Solana
+PRIVATE_KEY=                 # Main wallet private key
+RPC_ENDPOINT=                # Solana RPC URL
+RPC_WEBSOCKET_ENDPOINT=      # Solana WebSocket URL
 
-####### BUY SETTING #######
+# === Buy Settings ===
 DISTRIBUTE_INTERVAL_MAX=50
 DISTRIBUTE_INTERVAL_MIN=30
 
-BUY_UPPER_PERCENT=50         # Higher percent limit of SOL that can be used to buy token in wallet
-BUY_LOWER_PERCENT=30         # Lower percent limit of SOL (30 means, it buys with larger than 30% of SOL in wallet when buy)
+BUY_UPPER_PERCENT=50         # Max % of SOL used to buy
+BUY_LOWER_PERCENT=30         # Min % of SOL used to buy
 
-BUY_INTERVAL_MAX=10          # Upper limit of seconds to wait after second buy
-BUY_INTERVAL_MIN=0           # Lower limit of seconds (it waits from 2 to 30 secs after second buy before second buy)
+BUY_INTERVAL_MAX=10          # Max wait (seconds) between buys
+BUY_INTERVAL_MIN=0           # Min wait (seconds) between buys
 
-SELL_INTERVAL_MAX=10         # Upper limit of seconds to wait after sell
-SELL_INTERVAL_MIN=0          # Lower limit of seconds (it waits from 2 to 30 secs after sell to transfer SOL)
+SELL_INTERVAL_MAX=10         # Max wait before selling
+SELL_INTERVAL_MIN=0          # Min wait before selling
 
-DISTRIBUTE_WALLET_NUM=2      # Number of wallets that run in parallel which makes volume (max: 20)
+DISTRIBUTE_WALLET_NUM=2      # Number of concurrent wallets (Max: 20)
 SOL_AMOUNT_TO_DISTRIBUTE=0.001
 
-SLIPPAGE=50                  # Slippage in percent
+SLIPPAGE=50                  # Slippage tolerance in percent
 
-TOKEN_MINT=7MFX5LySd9CdaD8irWnLLKanpDw6gxbBuhEg3qCHWc4C   # Mint address of token to increase volume
+TOKEN_MINT=7MFX5LySd9CdaD8irWnLLKanpDw6gxbBuhEg3qCHWc4C   # Token to trade
+
+# === Optional JITO Mode ===
 JITO_MODE=false
 JITO_FEE=0.0001
-```
-
----
-
-## 🖥 Usage
-### 1. Clone the repository
-```
-git clone https://github.com/TopTrenDev/raydium-volume-bot-v2.git
-cd raydium-volume-bot-v2
-```
-### 2. Install dependencies
-```
-npm install
-```
-### 3. Configure the environment variables
-
-Rename the .env.copy file to .env and set RPC and WSS, main keypair's secret key and other variables.
-
-### 4. Run the bot
-
-```
-npm start
-```
-
-### 5. Gather the funds from distributed wallets
-
-```
-npm run gather
-```
-
----
-
-## **📬 Contact me**
-
-📢 **Twitter:** [toptrendev](https://x.com/toptrendev)
-
-📢 **Discord:** [toptrendev](https://discord.com/users/648385188774019072)
-
-📢 **Telegram:** [@toptrendev_146](https://t.me/toptrendev_146)
